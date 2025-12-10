@@ -1,0 +1,5 @@
+{
+  "name": "BookSmith AI",
+  "description": "An intelligent AI assistant for creating, planning, and analyzing e-books. Features chapter generation, market analysis, and a built-in e-book reader.",
+  "requestFramePermissions": []
+}
