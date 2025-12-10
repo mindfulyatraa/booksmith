@@ -93,15 +93,22 @@ const analyzeMarketTool: FunctionDeclaration = {
 };
 
 const SYSTEM_INSTRUCTION_BASE = `
-You are BookSmith Pro.
+You are BookSmith Pro, an expert AI author and editor.
 
 **CORE DIRECTIVES:**
-1. **STRUCTURE FIRST:** When asked to create a book, use \`create_ebook\` to define the structure (chapters and outlines). 
-   - **DO NOT** write the full chapter content in the JSON.
-   - Just provide a detailed \`outline\` for each chapter.
-   - The system will automatically generate the full text content based on your outlines.
-2. **STRICT USER ADHERENCE:** If the user provides specific details (Chapter Count, Plot Points, Names), you MUST use them exactly.
-3. **VISUALS:** Every chapter MUST have a unique, highly descriptive \`imageKeyword\` for generating illustrations.
+1. **PLANNING PHASE (CRITICAL):**
+   - When asked for a book, FIRST design a logical, compelling structure.
+   - Use \`create_ebook\` to define this structure.
+   - **IMPORTANT:** Keep the \`outline\` for each chapter **CONCISE** (3-4 sentences max). 
+   - **DO NOT** write long summaries in the JSON. This ensures the plan is created successfully without timeout.
+   - The detailed story will be written later during the "Drafting" phase.
+
+2. **QUALITY OVER QUANTITY:**
+   - Ensure chapter titles are creative and intriguing.
+   - Select \`imageKeyword\` that creates a stunning visual knowing it will be used for AI art.
+
+3. **STRICT USER ADHERENCE:** If the user provides specific details (Chapter Count, Plot Points, Names), you MUST use them exactly.
+
 4. **NO CENSORSHIP ON FICTION:** 
    - This is a creative writing tool. Do not block fictional conflict, horror, or romance unless it violates safety policies.
 `;
@@ -148,18 +155,28 @@ export class GeminiService {
 
   private async generateChapterContent(book: any, chapter: any): Promise<string> {
     const prompt = `
-    Write the full content for a chapter in a ${book.format}.
+    ACT AS: A best-selling author and professional editor.
+    TASK: Write the full content for a chapter in a ${book.format}.
+
+    **Book Metadata:**
+    - Title: ${book.title}
+    - Theme: ${book.theme}
+    - Format: ${book.format}
+
+    **Current Chapter:**
+    - Title: ${chapter.title}
+    - Context/Outline: ${chapter.outline}
+
+    **WRITING GUIDELINES (STRICT):**
+    1. **Quality:** Write with sophisticated prose, immersive sensory details, and strong pacing.
+    2. **Grammar:** Ensure PERFECT grammar, spelling, and punctuation. Zero mistakes.
+    3. **Length:** Write a substantial chapter (approx 1000-1500 words). Do not cut it short.
+    4. **Structure:** 
+       - Start directly with the scene (do not repeat the title).
+       - Use dialogue effectively to show character.
+    5. **Tone:** Match the ${book.theme} theme perfectly.
     
-    **Book Title:** ${book.title}
-    **Theme:** ${book.theme}
-    **Chapter Title:** ${chapter.title}
-    **Chapter Outline:** ${chapter.outline}
-    
-    **Instructions:**
-    - Write extensive, detailed content (approx 800-1000 words).
-    - Include dialogue, sensory details, and proper pacing.
-    - Do NOT include the chapter title at the start, just the story text.
-    - Format in Markdown.
+    Take your time and craft a masterpiece.
     `;
 
     try {
@@ -203,13 +220,14 @@ export class GeminiService {
 
     let attempts = 0;
     const maxAttempts = 3;
+    let lastError = "";
 
     while (attempts < maxAttempts) {
       try {
         let finalMessage = message;
 
-        if (attempts === 1) {
-          finalMessage += " (Ensure valid JSON output.)";
+        if (attempts > 0) {
+          finalMessage += " (Focus on valid JSON. Keep outlines CONCISE.)";
         }
 
         const response = await this.chat.sendMessage({ message: finalMessage });
@@ -297,8 +315,9 @@ export class GeminiService {
 
       } catch (error: any) {
         console.error(`Gemini Error (Attempt ${attempts + 1}):`, error);
+        lastError = error.message || error.toString();
 
-        const errStr = error.toString().toLowerCase();
+        const errStr = lastError.toLowerCase();
 
         if (errStr.includes('429') || errStr.includes('503')) {
           const waitTime = (attempts + 1) * 2000;
@@ -311,10 +330,10 @@ export class GeminiService {
         if (errStr.includes('403') || errStr.includes('key not valid')) throw error;
 
         attempts++;
-        if (attempts >= maxAttempts) throw error;
+        if (attempts >= maxAttempts) break;
         await this.wait(1500);
       }
     }
-    return "I'm having trouble generating that much content at once. Please try asking for fewer chapters or a shorter story.";
+    return `I encountered an error: "${lastError}". Please try asking for fewer chapters (e.g., 5) or a shorter story.`;
   }
 }

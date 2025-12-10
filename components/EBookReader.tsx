@@ -286,171 +286,166 @@ export const EBookReader: React.FC<EBookReaderProps> = ({ book, onSaveProject, o
         {/* Reader Area */}
         <div
           id="reader-content"
-          className="flex-1 overflow-y-auto flex justify-center scroll-smooth bg-slate-950 pt-16 md:pt-0"
+          className="flex-1 overflow-y-auto bg-slate-950 scroll-smooth p-4 md:p-8"
         >
-          <div className={`w-full max-w-5xl min-h-[85vh] mx-auto my-4 md:my-8 rounded-sm shadow-2xl transition-all duration-500 ease-in-out ${activeTheme} ${isComic ? 'border-4 border-black' : ''}`}>
+          {/* Main Book Page Container - "The White Screen" */}
+          <div className={`w-full max-w-[800px] min-h-[90vh] mx-auto rounded-sm shadow-2xl transition-all duration-500 ease-in-out relative ${activeTheme} ${isComic ? 'border-4 border-black' : ''}`}>
+
+            {/* FORCE BACKGROUND if theme fails */}
+            <div className={`absolute inset-0 -z-10 ${activeTheme.includes('bg-') ? '' : 'bg-white'}`}></div>
 
             {/* Cover View */}
             {currentChapter === -1 && (
-              <div className="min-h-full flex flex-col items-center justify-center p-8 md:p-16 text-center">
-                <div className={`w-full max-w-md aspect-[2/3] mb-12 overflow-hidden shadow-2xl bg-gray-200 relative group ${isComic ? 'border-4 border-black' : 'rounded-lg'}`}>
+              <div className="w-full h-full min-h-[90vh] flex flex-col relative overflow-hidden group">
+                {/* Full Cover Image Background */}
+                <div className="absolute inset-0 z-0">
                   <img
-                    src={`https://picsum.photos/seed/${book.title.replace(/\s/g, '')}/800/1200`}
+                    src={`https://image.pollinations.ai/prompt/book cover for ${encodeURIComponent(book.title)} ${encodeURIComponent(book.theme)} style?width=800&height=1200&nologo=true`}
                     alt="Cover"
-                    crossOrigin="anonymous"
-                    className={`w-full h-full object-cover ${isComic ? 'grayscale contrast-125' : ''}`}
+                    className={`w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 ${isComic ? 'grayscale contrast-125' : ''}`}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${book.title.replace(/\s/g, '')}/800/1200`;
+                    }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* Cinematic Gradient Overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent opacity-60"></div>
                 </div>
-                <h1 className={`text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight ${isComic ? 'uppercase tracking-tighter' : ''}`}>{book.title}</h1>
-                <p className="text-xl md:text-2xl font-medium opacity-60 flex items-center gap-2 justify-center">
-                  <span className="w-8 h-[1px] bg-current opacity-50"></span>
-                  {book.author}
-                  <span className="w-8 h-[1px] bg-current opacity-50"></span>
-                </p>
+
+                {/* Cover Content (Overlay) */}
+                <div className="relative z-10 flex-1 flex flex-col justify-between p-8 md:p-12 text-center">
+                  <div className="mt-8">
+                    <p className="text-white/80 font-serif italic text-lg tracking-widest uppercase mb-4 opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]">Bestseller</p>
+                    <h1 className="text-5xl md:text-7xl font-serif font-black text-white leading-tight drop-shadow-2xl animate-[slideUp_1s_ease-out_forwards]">
+                      {book.title}
+                    </h1>
+                  </div>
+
+                  <div className="mb-12">
+                    <div className="w-16 h-1 bg-brand-500 mx-auto mb-6 rounded-full shadow-[0_0_10px_rgba(14,165,233,0.5)]"></div>
+                    <p className="text-xl md:text-2xl text-white font-medium drop-shadow-lg tracking-wide animate-[fadeIn_1s_ease-out_0.8s_forwards]">
+                      <span className="opacity-70">By</span> {book.author}
+                    </p>
+                    <p className="text-white/60 text-sm mt-2 uppercase tracking-widest">{book.theme} Edition</p>
+                  </div>
+                </div>
               </div>
             )}
 
             {/* Chapter View */}
             {currentChapter >= 0 && (
-              <div className="max-w-3xl mx-auto px-6 md:px-12 py-16 md:py-24" style={{ fontSize: `${fontSize}px`, lineHeight: 1.9 }}>
+              <div className="w-full">
+                {/* Chapter Content Container */}
+                <div className="max-w-3xl mx-auto px-8 md:px-12 py-16 md:py-20" style={{ fontSize: `${fontSize}px`, lineHeight: 1.9 }}>
 
-                {/* Chapter Header */}
-                <div className="mb-12 text-center">
-                  <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-[0.2em] uppercase border border-current/20 rounded-full opacity-60">
-                    Chapter {currentChapter + 1}
+                  {/* Chapter Header */}
+                  <div className="mb-12 text-center">
+                    <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-[0.2em] uppercase border border-current/20 rounded-full opacity-60">
+                      Chapter {currentChapter + 1}
+                    </div>
+                    <h2 className={`text-4xl md:text-5xl font-black mb-8 leading-tight text-current ${isComic ? 'uppercase tracking-tighter' : 'tracking-tight font-serif'}`}>
+                      {book.chapters[currentChapter].title}
+                    </h2>
+                    <div className="w-24 h-1 bg-current opacity-10 mx-auto rounded-full"></div>
                   </div>
-                  <h2 className={`text-4xl md:text-5xl font-black mb-8 leading-tight text-current ${isComic ? 'uppercase tracking-tighter' : 'tracking-tight'}`}>
-                    {book.chapters[currentChapter].title}
-                  </h2>
-                  <div className="w-24 h-1 bg-current opacity-10 mx-auto rounded-full"></div>
-                </div>
 
-                {/* Chapter Image */}
-                <div className="w-full mb-12 rounded-xl overflow-hidden shadow-lg relative group">
-                  <div className="aspect-video w-full bg-gradient-to-br from-slate-200 to-slate-300 relative overflow-hidden flex items-center justify-center">
-                    <img
-                      key={currentChapter} // Force re-render animation
-                      src={book.chapters[currentChapter].imageUrl || `https://picsum.photos/seed/${book.chapters[currentChapter].imageKeyword.replace(/\s/g, '') + currentChapter}/1200/800`}
-                      alt={book.chapters[currentChapter].imageKeyword}
-                      className={`w-full h-full object-cover transition-all duration-700 animate-ken-burns group-hover:scale-105 ${isComic ? 'grayscale contrast-125' : ''}`}
-                    />
+                  {/* Chapter Image (Pollinations) */}
+                  <div className="w-full mb-12 rounded-lg overflow-hidden shadow-lg border border-current/10 relative group bg-gray-100">
+                    <div className="aspect-video w-full relative overflow-hidden">
+                      <img
+                        key={currentChapter}
+                        src={book.chapters[currentChapter].imageUrl || `https://image.pollinations.ai/prompt/${encodeURIComponent(book.chapters[currentChapter].imageKeyword || book.chapters[currentChapter].title)} cinematic lighting?width=1200&height=800&nologo=true`}
+                        alt={book.chapters[currentChapter].imageKeyword}
+                        className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${isComic ? 'grayscale contrast-125' : ''}`}
+                        loading="lazy"
+                      />
+                      {/* Interaction hint */}
+                      {!book.chapters[currentChapter].imageUrl && onGenerateImage && (
+                        <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleGenerateImageClick(currentChapter, book.chapters[currentChapter].imageKeyword)}
+                            className="bg-black/50 hover:bg-black/70 backdrop-blur text-white p-2 rounded-full shadow-lg border border-white/20 transition-all hover:scale-110"
+                            title="Regenerate this image"
+                          >
+                            <Sparkles className="w-5 h-5 text-brand-400" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
 
-                    {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500"></div>
+                    {/* Simplified Caption - Always Visible */}
+                    <div className="px-6 py-4 bg-black/5 border-t border-black/5 flex items-start gap-3">
+                      <ImageIcon className="w-5 h-5 text-current opacity-50 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-bold opacity-80 uppercase tracking-wide text-current">Visual Concept</p>
+                        <p className="text-sm italic opacity-70 leading-relaxed text-current">
+                          "{book.chapters[currentChapter].imageKeyword}"
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-                    {/* Generator Button Overlay */}
-                    {!book.chapters[currentChapter].imageUrl && onGenerateImage && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <button
-                          onClick={() => handleGenerateImageClick(currentChapter, book.chapters[currentChapter].imageKeyword)}
-                          disabled={generatingImageFor === currentChapter}
-                          className="bg-white/95 hover:bg-white text-black font-bold py-3 px-6 rounded-full shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all flex items-center gap-2 hover:scale-105"
+                  {/* Prose Content */}
+                  <div className={`
+                      prose prose-lg max-w-none 
+                      prose-headings:text-current prose-headings:font-serif prose-headings:font-black prose-headings:tracking-tight
+                      prose-p:text-current prose-p:opacity-95 prose-p:leading-loose
+                      prose-blockquote:border-l-4 prose-blockquote:border-current/30 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-current/80
+                      prose-li:text-current prose-li:opacity-90
+                      ${getFontClass()}
+                      ${isComic ? 'prose-p:font-bold prose-p:uppercase prose-p:tracking-wide' : ''}
+                  `}>
+                    {book.chapters[currentChapter].content ? (
+                      isComic ? (
+                        <ReactMarkdown
+                          components={{
+                            p: ({ node, ...props }) => {
+                              const text = String(props.children);
+                              if (text.trim().startsWith('Panel') || text.trim().startsWith('**Panel')) {
+                                return (
+                                  <div className="bg-slate-100 border-2 border-black p-3 font-black uppercase text-xs mt-10 mb-4 tracking-widest w-fit text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1">
+                                    {props.children}
+                                  </div>
+                                );
+                              }
+                              return <p className="mb-6 font-medium text-lg border-l-4 border-transparent pl-4 hover:border-black/20 transition-colors">{props.children}</p>
+                            },
+                          }}
                         >
-                          {generatingImageFor === currentChapter ? (
-                            <>
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                              <span>Creating Art...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="w-5 h-5 text-purple-600" />
-                              <span>Generate AI Art</span>
-                            </>
-                          )}
-                        </button>
+                          {book.chapters[currentChapter].content}
+                        </ReactMarkdown>
+                      ) : (
+                        <ReactMarkdown
+                          components={{
+                            // Custom typography requested by user
+                            h1: ({ node, ...props }) => <h1 className="text-3xl font-black mt-16 mb-6 opacity-100 leading-tight" {...props} />,
+                            h2: ({ node, ...props }) => <h2 className="text-2xl font-black mt-12 mb-5 opacity-100 leading-tight border-b border-current/10 pb-2" {...props} />,
+                            h3: ({ node, ...props }) => <h3 className="text-xl font-black mt-10 mb-4 opacity-100 uppercase tracking-wide text-sm" {...props} />,
+                            p: ({ node, ...props }) => <p className="mb-6 text-justify md:text-left" {...props} />,
+                          }}
+                        >
+                          {book.chapters[currentChapter].content}
+                        </ReactMarkdown>
+                      )
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-32 text-center opacity-60">
+                        <Loader2 className="w-12 h-12 animate-spin mb-6 text-current" />
+                        <p className="text-lg font-medium animate-pulse">Writing magic...</p>
+                        <p className="text-sm opacity-70 mt-2">The AI is crafting this chapter for you.</p>
                       </div>
                     )}
                   </div>
 
-                  {/* Always Visible Image Caption */}
-                  <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white px-6 py-4 border-t-2 border-brand-500">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-1">
-                        <ImageIcon className="w-5 h-5 text-brand-400" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-bold uppercase tracking-wider text-brand-400">Visual Description</span>
-                          {!book.chapters[currentChapter].imageUrl && (
-                            <span className="text-xs px-2 py-0.5 bg-purple-600/20 text-purple-300 rounded-full border border-purple-500/30">Placeholder</span>
-                          )}
-                          {book.chapters[currentChapter].imageUrl && (
-                            <span className="text-xs px-2 py-0.5 bg-emerald-600/20 text-emerald-300 rounded-full border border-emerald-500/30 flex items-center gap-1">
-                              <Sparkles className="w-3 h-3" /> AI Generated
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm md:text-base font-medium leading-relaxed">
-                          {book.chapters[currentChapter].imageKeyword}
-                        </p>
-                        <p className="text-xs text-slate-400 mt-2 italic">
-                          This illustration represents the key visual elements and atmosphere of this chapter, helping you visualize the narrative.
-                        </p>
-                      </div>
+                  {/* End of chapter marker */}
+                  <div className="mt-20 flex justify-center opacity-30">
+                    <div className="flex gap-2">
+                      <span className="w-2 h-2 rounded-full bg-current"></span>
+                      <span className="w-2 h-2 rounded-full bg-current"></span>
+                      <span className="w-2 h-2 rounded-full bg-current"></span>
                     </div>
                   </div>
-                </div>
 
-                <div className={`
-                    prose prose-lg max-w-none 
-                    prose-headings:text-current prose-headings:font-serif prose-headings:font-black prose-headings:tracking-tight
-                    prose-p:text-current prose-p:opacity-95 prose-p:leading-relaxed
-                    prose-blockquote:border-l-4 prose-blockquote:border-current/30 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-current/80
-                    prose-strong:text-current prose-strong:font-bold
-                    ${getFontClass()}
-                    ${isComic ? 'prose-p:font-bold prose-p:uppercase prose-p:tracking-wide' : ''}
-                `}>
-                  {book.chapters[currentChapter].content ? (
-                    isComic ? (
-                      <ReactMarkdown
-                        components={{
-                          p: ({ node, ...props }) => {
-                            const text = String(props.children);
-                            if (text.trim().startsWith('Panel') || text.trim().startsWith('**Panel')) {
-                              return (
-                                <div className="bg-slate-100 border-2 border-black p-3 font-black uppercase text-xs mt-10 mb-4 tracking-widest w-fit text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1">
-                                  {props.children}
-                                </div>
-                              );
-                            }
-                            return <p className="mb-6 font-medium text-lg border-l-4 border-transparent pl-4 hover:border-black/20 transition-colors">{props.children}</p>
-                          },
-                        }}
-                      >
-                        {book.chapters[currentChapter].content}
-                      </ReactMarkdown>
-                    ) : (
-                      <ReactMarkdown
-                        components={{
-                          // Custom heading styles to enforce "Dark Bold" look requested by user
-                          h1: ({ node, ...props }) => <h1 className="text-3xl font-black mt-16 mb-6 opacity-100 leading-tight" {...props} />,
-                          h2: ({ node, ...props }) => <h2 className="text-2xl font-black mt-12 mb-5 opacity-100 leading-tight border-b border-current/10 pb-2" {...props} />,
-                          h3: ({ node, ...props }) => <h3 className="text-xl font-black mt-10 mb-4 opacity-100 uppercase tracking-wide text-sm" {...props} />,
-                          p: ({ node, ...props }) => <p className="mb-6 text-justify md:text-left" {...props} />,
-                        }}
-                      >
-                        {book.chapters[currentChapter].content}
-                      </ReactMarkdown>
-                    )
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-32 text-center opacity-60">
-                      <Loader2 className="w-12 h-12 animate-spin mb-6 text-current" />
-                      <p className="text-lg font-medium animate-pulse">Writing magic...</p>
-                      <p className="text-sm opacity-70 mt-2">The AI is crafting this chapter for you.</p>
-                    </div>
-                  )}
                 </div>
-
-                {/* End of chapter marker */}
-                <div className="mt-20 flex justify-center opacity-30">
-                  <div className="flex gap-2">
-                    <span className="w-2 h-2 rounded-full bg-current"></span>
-                    <span className="w-2 h-2 rounded-full bg-current"></span>
-                    <span className="w-2 h-2 rounded-full bg-current"></span>
-                  </div>
-                </div>
-
               </div>
             )}
           </div>
