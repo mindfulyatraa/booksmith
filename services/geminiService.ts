@@ -104,8 +104,10 @@ You are BookSmith Pro, a Professional Ebook Creator AI who writes premium, sell-
    
    **EBOOK CREATION FORMAT (Follow EXACTLY):**
    - **Ebook Title + Subtitle**
-   - **Chapter Structure:** Aim for a comprehensive list (unless user specifies otherwise). 
-   - **Visuals:** For every chapter, you MUST provide a unique \`imageKeyword\` that describes a 16:9 professional visual (e.g., "minimalist diagram of...", "cinematic photo of..."). This represents the "image_group" requirement.
+   - **Chapter Structure:** Aim for a comprehensive list.
+   - **Visuals:** For every chapter, you MUST provide a unique \`imageKeyword\` that describes a **16:9 infographic, chart, diagram, or professional illustration**. 
+     - Examples: "Infographic timeline of AI history", "Pie chart showing market trends", "Flowchart of success steps", "Minimalist vector illustration of a team".
+     - **AVOID** generic "cinematic" descriptions. Focus on **visual data** and **clean illustrations**.
 
 2. **QUALITY OVER QUANTITY:**
    - Ensure chapter titles are creative and intriguing.
@@ -138,7 +140,7 @@ export class GeminiService {
       const response = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
-          parts: [{ text: `Cinematic, highly detailed, atmospheric illustration of: ${prompt}. Digital art style, 8k resolution, professional lighting.` }]
+          parts: [{ text: `Professional digital art, infographic style, or clean modern illustration of: ${prompt}. vector style, flat design, high quality, 4k, trending on behance, corporate memphis or sleek tech style. textless.` }]
         }
       });
 
@@ -171,22 +173,22 @@ export class GeminiService {
     - Title: ${chapter.title}
     - Context/Outline: ${chapter.outline}
 
-    **WRITING STYLE RULES (VERY IMPORTANT):**
-    - Write in a **clean, modern, premium ebook tone**.
-    - Use simple English + motivating style.
-    - No fluff, only high-value content.
-    - Content must feel authored, not AI-generated.
-    - **Formatting:** Keep it bold, clean, and organized.
+    **WRITING STYLE RULES (EXTREMELY IMPORTANT):**
+    - **LANGUAGE LEVEL:** Write in **very simple, conversational English** (Grade 6-7 level).
+    - **NO COMPLEX WORDS:** Do not use difficult words or jargon. Use "easy to understand" words. (e.g., use "use" instead of "utilize", "help" instead of "facilitate").
+    - **Human-Like:** Write as if explaining to a friend. Be warm, encouraging, and direct.
+    - **Short Sentences:** Keep sentences short and punchy.
+    - **Formatting:** Use bolding for key points. Use bullet points often.
 
     **CHAPTER CONTENT STRUCTURE (Follow EXACTLY):**
-    1. **Powerful Explanation:** Deep dive into the topic with strong pacing (or story if fiction).
-    2. **Bullet Points:** Break down complex ideas (if non-fiction).
-    3. **Examples / Scenarios:** Concrete examples to illustrate points.
-    4. **Action Steps / Frameworks:** Real, practical instructions or next steps.
-    5. **Summary:** A brief wrap-up of the chapter.
+    1. **Simple Explanation:** Explain the concept simply.
+    2. **Real Examples:** Give a relatable example.
+    3. **Step-by-Step Guide:** Clear instructions (Step 1, Step 2...).
+    4. **Checklist:** A simple list of things to do.
+    5. **Summary:** One sentence wrap-up.
 
-    **Length:** Write a substantial chapter (approx 1000-1500 words). Do not cut it short.
-    **Tone:** Match the ${book.theme} theme perfectly.
+    **Length:** Write a substantial chapter (approx 800-1000 words).
+    **Tone:** Friendly, Professional, Simple.
     
     Take your time and craft a masterpiece.
     `;
