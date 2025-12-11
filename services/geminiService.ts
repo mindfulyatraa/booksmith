@@ -140,7 +140,7 @@ export class GeminiService {
       const response = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
-          parts: [{ text: `Professional digital art, infographic style, or clean modern illustration of: ${prompt}. vector style, flat design, high quality, 4k, trending on behance, corporate memphis or sleek tech style. textless.` }]
+          parts: [{ text: `Minimalist vector art, symbolic illustration, or abstract data visualization of: ${prompt}. Clean lines, flat design, high contrast, trending on behance, corporate tech style. NO TEXT, NO WORDS, NO LABELS, NO NUMBERS. Visual metaphor only.` }]
         }
       });
 

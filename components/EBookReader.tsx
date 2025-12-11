@@ -129,13 +129,34 @@ export const EBookReader: React.FC<EBookReaderProps> = ({ book, onSaveProject, o
       doc.text(`By ${book.author}`, pageWidth / 2, pageHeight - margin - 20, { align: "center" });
 
       // --- Chapters ---
-      book.chapters.forEach((chapter, index) => {
+      // --- Chapters ---
+      // We need to use a for...of loop to await async operations (image loading)
+      for (let i = 0; i < book.chapters.length; i++) {
+        const chapter = book.chapters[i];
         doc.addPage();
 
         // Chapter Title
         doc.setFont("helvetica", "bold");
         doc.setFontSize(18);
-        doc.text(`Chapter ${index + 1}: ${chapter.title}`, margin, margin + 10);
+        doc.text(`Chapter ${i + 1}: ${chapter.title}`, margin, margin + 10);
+
+        let contentStartY = margin + 30;
+
+        // --- ADD CHAPTER IMAGE ---
+        // Try to get the chapter image (either generated URL or fallback using Pollinations)
+        const chapterImgUrl = chapter.imageUrl || `https://image.pollinations.ai/prompt/${encodeURIComponent(chapter.imageKeyword || chapter.title)}%20infographic%20no%20text?width=1200&height=800&nologo=true`;
+
+        try {
+          const chapterImgData = await getDataUri(chapterImgUrl);
+          if (chapterImgData) {
+            // Constrain image height to half page approx
+            const imgHeight = 80;
+            doc.addImage(chapterImgData, 'JPEG', margin, margin + 15, maxLineWidth, imgHeight);
+            contentStartY += imgHeight + 10; // Push text down
+          }
+        } catch (imgError) {
+          console.warn("Failed to add chapter image to PDF", imgError);
+        }
 
         // Chapter Content
         doc.setFont("times", "normal");
@@ -148,7 +169,7 @@ export const EBookReader: React.FC<EBookReaderProps> = ({ book, onSaveProject, o
 
         const paragraphs = cleanContent.split('\n');
 
-        let cursorY = margin + 30;
+        let cursorY = contentStartY;
 
         paragraphs.forEach(para => {
           if (!para.trim()) {
@@ -168,7 +189,7 @@ export const EBookReader: React.FC<EBookReaderProps> = ({ book, onSaveProject, o
           });
           cursorY += lineHeight / 2;
         });
-      });
+      }
 
       doc.save(`${book.title.replace(/\s+/g, '_')}.pdf`);
     } catch (e) {
@@ -300,7 +321,7 @@ export const EBookReader: React.FC<EBookReaderProps> = ({ book, onSaveProject, o
                 {/* Full Cover Image Background */}
                 <div className="absolute inset-0 z-0">
                   <img
-                    src={`https://image.pollinations.ai/prompt/book cover for ${encodeURIComponent(book.title)} ${encodeURIComponent(book.theme)} style?width=800&height=1200&nologo=true`}
+                    src={`https://image.pollinations.ai/prompt/minimalist abstract book cover art for ${encodeURIComponent(book.theme)} theme dark dramatic cinematic lighting?width=800&height=1200&nologo=true`}
                     alt="Cover"
                     className={`w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 ${isComic ? 'grayscale contrast-125' : ''}`}
                     onError={(e) => {
