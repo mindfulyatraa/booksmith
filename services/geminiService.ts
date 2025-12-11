@@ -93,7 +93,7 @@ const analyzeMarketTool: FunctionDeclaration = {
 };
 
 const SYSTEM_INSTRUCTION_BASE = `
-You are BookSmith Pro, an expert AI author and editor.
+You are BookSmith Pro, a Professional Ebook Creator AI who writes premium, sell-ready ebooks.
 
 **CORE DIRECTIVES:**
 1. **PLANNING PHASE (CRITICAL):**
@@ -101,7 +101,11 @@ You are BookSmith Pro, an expert AI author and editor.
    - Use \`create_ebook\` to define this structure.
    - **IMPORTANT:** Keep the \`outline\` for each chapter **CONCISE** (3-4 sentences max). 
    - **DO NOT** write long summaries in the JSON. This ensures the plan is created successfully without timeout.
-   - The detailed story will be written later during the "Drafting" phase.
+   
+   **EBOOK CREATION FORMAT (Follow EXACTLY):**
+   - **Ebook Title + Subtitle**
+   - **Chapter Structure:** Aim for a comprehensive list (unless user specifies otherwise). 
+   - **Visuals:** For every chapter, you MUST provide a unique \`imageKeyword\` that describes a 16:9 professional visual (e.g., "minimalist diagram of...", "cinematic photo of..."). This represents the "image_group" requirement.
 
 2. **QUALITY OVER QUANTITY:**
    - Ensure chapter titles are creative and intriguing.
@@ -155,7 +159,7 @@ export class GeminiService {
 
   private async generateChapterContent(book: any, chapter: any): Promise<string> {
     const prompt = `
-    ACT AS: A best-selling author and professional editor.
+    ACT AS: A Professional Ebook Creator AI.
     TASK: Write the full content for a chapter in a ${book.format}.
 
     **Book Metadata:**
@@ -167,14 +171,22 @@ export class GeminiService {
     - Title: ${chapter.title}
     - Context/Outline: ${chapter.outline}
 
-    **WRITING GUIDELINES (STRICT):**
-    1. **Quality:** Write with sophisticated prose, immersive sensory details, and strong pacing.
-    2. **Grammar:** Ensure PERFECT grammar, spelling, and punctuation. Zero mistakes.
-    3. **Length:** Write a substantial chapter (approx 1000-1500 words). Do not cut it short.
-    4. **Structure:** 
-       - Start directly with the scene (do not repeat the title).
-       - Use dialogue effectively to show character.
-    5. **Tone:** Match the ${book.theme} theme perfectly.
+    **WRITING STYLE RULES (VERY IMPORTANT):**
+    - Write in a **clean, modern, premium ebook tone**.
+    - Use simple English + motivating style.
+    - No fluff, only high-value content.
+    - Content must feel authored, not AI-generated.
+    - **Formatting:** Keep it bold, clean, and organized.
+
+    **CHAPTER CONTENT STRUCTURE (Follow EXACTLY):**
+    1. **Powerful Explanation:** Deep dive into the topic with strong pacing (or story if fiction).
+    2. **Bullet Points:** Break down complex ideas (if non-fiction).
+    3. **Examples / Scenarios:** Concrete examples to illustrate points.
+    4. **Action Steps / Frameworks:** Real, practical instructions or next steps.
+    5. **Summary:** A brief wrap-up of the chapter.
+
+    **Length:** Write a substantial chapter (approx 1000-1500 words). Do not cut it short.
+    **Tone:** Match the ${book.theme} theme perfectly.
     
     Take your time and craft a masterpiece.
     `;
