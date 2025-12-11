@@ -132,7 +132,7 @@ export class GeminiService {
   async generateImage(prompt: string): Promise<string> {
     try {
       const response = await this.ai.models.generateContent({
-        model: 'gemini-1.5-flash-001',
+        model: 'gemini-2.5-flash-image',
         contents: {
           parts: [{ text: `Cinematic, highly detailed, atmospheric illustration of: ${prompt}. Digital art style, 8k resolution, professional lighting.` }]
         }
@@ -183,7 +183,7 @@ export class GeminiService {
     while (attempts < 3) {
       try {
         const result = await this.ai.models.generateContent({
-          model: "gemini-1.5-flash-001",
+          model: "gemini-2.5-flash",
           contents: prompt
         });
         return result.text || "";
@@ -206,7 +206,7 @@ export class GeminiService {
     this.currentLevel = level;
 
     this.chat = this.ai.chats.create({
-      model: "gemini-1.5-flash-001",
+      model: "gemini-2.5-flash",
       config: {
         systemInstruction: SYSTEM_INSTRUCTION_BASE,
         tools: [{ functionDeclarations: [createEBookTool, analyzeMarketTool, editChapterTool] }],
