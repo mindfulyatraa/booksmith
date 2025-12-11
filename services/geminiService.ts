@@ -132,7 +132,7 @@ export class GeminiService {
   async generateImage(prompt: string): Promise<string> {
     try {
       const response = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
+        model: 'gemini-1.5-flash',
         contents: {
           parts: [{ text: `Cinematic, highly detailed, atmospheric illustration of: ${prompt}. Digital art style, 8k resolution, professional lighting.` }]
         }
@@ -179,23 +179,34 @@ export class GeminiService {
     Take your time and craft a masterpiece.
     `;
 
-    try {
-      const result = await this.ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt
-      });
-      return result.text || "";
-    } catch (e) {
-      console.error(`Failed to generate content for chapter: ${chapter.title}`, e);
-      return `(Content generation failed. Outline: ${chapter.outline})`;
+    let attempts = 0;
+    while (attempts < 3) {
+      try {
+        const result = await this.ai.models.generateContent({
+          model: "gemini-1.5-flash",
+          contents: prompt
+        });
+        return result.text || "";
+      } catch (e: any) {
+        console.error(`Failed to generate content for chapter: ${chapter.title} (Attempt ${attempts + 1})`, e);
+        if (e.status === 429 || e.toString().includes('429')) {
+             const waitTime = Math.pow(2, attempts) * 2000; // 2s, 4s, 8s
+             console.log(`Rate limit hit. Waiting ${waitTime}ms...`);
+             await this.wait(waitTime);
+             attempts++;
+             continue;
+        }
+        return `(Content generation failed. Outline: ${chapter.outline})`;
+      }
     }
+    return `(Content generation failed after retries. Outline: ${chapter.outline})`;
   }
 
   async startChat(level: UserLevel) {
     this.currentLevel = level;
 
     this.chat = this.ai.chats.create({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       config: {
         systemInstruction: SYSTEM_INSTRUCTION_BASE,
         tools: [{ functionDeclarations: [createEBookTool, analyzeMarketTool, editChapterTool] }],
