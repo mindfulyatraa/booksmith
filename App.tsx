@@ -12,7 +12,7 @@ const ENV_API_KEY = process.env.API_KEY || '';
 
 function App() {
   const [apiKey, setApiKey] = useState<string>(() => localStorage.getItem('gemini_api_key') || ENV_API_KEY);
-  
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -23,13 +23,13 @@ function App() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [elapsedTime, setElapsedTime] = useState(0); 
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [currentMode, setCurrentMode] = useState<AppMode>('chat');
   const [generatedBook, setGeneratedBook] = useState<EBook | null>(null);
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
-  
+
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>(() => {
     const saved = localStorage.getItem('booksmith_projects');
     return saved ? JSON.parse(saved) : [];
@@ -47,7 +47,7 @@ function App() {
         console.error("Service construction error", e);
       }
     } else {
-        setIsKeyModalOpen(true);
+      setIsKeyModalOpen(true);
     }
   }, [apiKey]);
 
@@ -73,8 +73,8 @@ function App() {
   const handleSendMessage = async (text: string = inputValue) => {
     if (!text.trim()) return;
     if (!apiKey) {
-        setIsKeyModalOpen(true);
-        return;
+      setIsKeyModalOpen(true);
+      return;
     }
 
     const userMsg: Message = {
@@ -117,7 +117,7 @@ function App() {
             if (!prev) return null;
             const updatedChapters = [...prev.chapters];
             if (updatedChapters[chapterIndex]) {
-               updatedChapters[chapterIndex] = { ...updatedChapters[chapterIndex], content: newContent };
+              updatedChapters[chapterIndex] = { ...updatedChapters[chapterIndex], content: newContent };
             }
             return { ...prev, chapters: updatedChapters };
           });
@@ -150,20 +150,25 @@ function App() {
       console.error("Detailed Error:", error);
       let errorText = "Connection failed.";
       const errorStr = error.toString().toLowerCase();
-      
+
       // Strict check for AUTHENTICATION errors
       if (errorStr.includes('403') || errorStr.includes('key not valid') || errorStr.includes('invalid_api_key')) {
         errorText = "Invalid API Key. Please click 'API Configuration' to update it.";
         setIsKeyModalOpen(true);
-      } 
+      }
+      // Quota Exceeded (429) - Trigger Key Modal as requested
+      else if (errorStr.includes('429') || errorStr.includes('quota exceeded')) {
+        errorText = "Quota Exceeded (Limit 20/day). Please enter a NEW API Key to continue.";
+        setIsKeyModalOpen(true);
+      }
       // Network errors
       else if (errorStr.includes('fetch failed')) {
         errorText = "Network error. Please check your internet connection.";
-      } 
+      }
       // Generation errors (Safety, Empty, etc)
       else if (errorStr.includes('empty response') || errorStr.includes('safety') || errorStr.includes('blocked')) {
         errorText = "The AI could not generate a response. " + (errorStr.includes('safety') ? "Content blocked by safety filters." : "Please try a simpler or shorter request.");
-      } 
+      }
       // Generic errors (400, 500)
       else {
         errorText = "An error occurred. The system might be overloaded. Please wait a moment and try again.";
@@ -222,7 +227,7 @@ function App() {
     if (!geminiServiceRef.current) throw new Error("AI Service not ready");
     try {
       const imageUrl = await geminiServiceRef.current.generateImage(prompt);
-      
+
       // Update local state
       setGeneratedBook(prev => {
         if (!prev) return null;
@@ -251,14 +256,14 @@ function App() {
 
   return (
     <div className="flex h-screen bg-slate-900 text-slate-100 font-sans">
-      <ApiKeyModal 
-        isOpen={isKeyModalOpen} 
-        onClose={() => setIsKeyModalOpen(false)} 
+      <ApiKeyModal
+        isOpen={isKeyModalOpen}
+        onClose={() => setIsKeyModalOpen(false)}
         onSave={(key) => {
-            setApiKey(key); 
-            setIsKeyModalOpen(false);
-        }} 
-        currentKey={apiKey} 
+          setApiKey(key);
+          setIsKeyModalOpen(false);
+        }}
+        currentKey={apiKey}
       />
 
       {/* Sidebar */}
@@ -274,23 +279,23 @@ function App() {
         </div>
 
         <nav className="flex-1 flex flex-col gap-2 px-3 mt-4">
-          <button 
+          <button
             onClick={() => { setCurrentMode('chat'); setIsMobileMenuOpen(false); }}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${currentMode === 'chat' ? 'bg-brand-600/10 text-brand-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
           >
             <Sparkles className="w-5 h-5" />
             <span className="font-medium">Assistant</span>
           </button>
-          <button 
-            onClick={() => { if(generatedBook) { setCurrentMode('preview'); setIsMobileMenuOpen(false); } }}
+          <button
+            onClick={() => { if (generatedBook) { setCurrentMode('preview'); setIsMobileMenuOpen(false); } }}
             disabled={!generatedBook}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${currentMode === 'preview' ? 'bg-brand-600/10 text-brand-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'} ${!generatedBook && 'opacity-40 cursor-not-allowed'}`}
           >
             <Book className="w-5 h-5" />
             <span className="font-medium">Read Book</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={() => { setCurrentMode('analysis'); setIsMobileMenuOpen(false); }}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${currentMode === 'analysis' ? 'bg-brand-600/10 text-brand-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
           >
@@ -298,7 +303,7 @@ function App() {
             <span className="font-medium">Market Analysis</span>
           </button>
 
-           <button 
+          <button
             onClick={() => { setCurrentMode('projects'); setIsMobileMenuOpen(false); }}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${currentMode === 'projects' ? 'bg-brand-600/10 text-brand-400' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
           >
@@ -308,21 +313,21 @@ function App() {
         </nav>
 
         <div className="px-4 mt-auto">
-             <button 
-                onClick={() => setIsKeyModalOpen(true)}
-                className="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors w-full text-xs"
-             >
-                <Settings2 className="w-4 h-4" />
-                <span>API Configuration</span>
-             </button>
+          <button
+            onClick={() => setIsKeyModalOpen(true)}
+            className="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white transition-colors w-full text-xs"
+          >
+            <Settings2 className="w-4 h-4" />
+            <span>API Configuration</span>
+          </button>
         </div>
       </div>
 
       {/* Main Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative">
         <div className="md:hidden h-14 border-b border-slate-800 flex items-center px-4 justify-between bg-slate-950">
-           <span className="font-bold">BookSmith AI</span>
-           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-slate-400"><Menu className="w-6 h-6" /></button>
+          <span className="font-bold">BookSmith AI</span>
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-slate-400"><Menu className="w-6 h-6" /></button>
         </div>
 
         {currentMode === 'chat' && (
@@ -348,9 +353,9 @@ function App() {
                       </div>
                     )}
                     {msg.text.includes('**System Error:**') && (
-                       <div className="flex items-center gap-2 text-rose-400 text-xs mt-1 px-1">
-                         <AlertCircle className="w-3 h-3" /> <span>{msg.text.replace('**System Error:**', '')}</span>
-                       </div>
+                      <div className="flex items-center gap-2 text-rose-400 text-xs mt-1 px-1">
+                        <AlertCircle className="w-3 h-3" /> <span>{msg.text.replace('**System Error:**', '')}</span>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -376,29 +381,29 @@ function App() {
                   </button>
                 </div>
               )}
-              
+
               {/* Timer Progress */}
               {isLoading && (
                 <div className="flex flex-col gap-2 max-w-sm mx-auto my-6 animate-in fade-in zoom-in-95 duration-300">
-                   <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-xl">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                           <Loader2 className="w-4 h-4 text-brand-400 animate-spin" />
-                           <span className="text-sm font-bold text-white">Generating...</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded text-xs font-mono text-slate-400">
-                          <Clock className="w-3 h-3" />
-                          <span>{elapsedTime}s</span>
-                        </div>
+                  <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-xl">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 text-brand-400 animate-spin" />
+                        <span className="text-sm font-bold text-white">Generating...</span>
                       </div>
-                      <div className="w-full bg-slate-900 rounded-full h-2 mb-3 overflow-hidden">
-                        <div 
-                          className="bg-brand-500 h-full rounded-full transition-all duration-1000 ease-linear"
-                          style={{ width: `${Math.min((elapsedTime / 90) * 100, 98)}%` }}
-                        ></div>
+                      <div className="flex items-center gap-1.5 bg-slate-900 px-2 py-1 rounded text-xs font-mono text-slate-400">
+                        <Clock className="w-3 h-3" />
+                        <span>{elapsedTime}s</span>
                       </div>
-                      <p className="text-xs text-slate-400 text-center animate-pulse">{getLoadingStatus(elapsedTime)}</p>
-                   </div>
+                    </div>
+                    <div className="w-full bg-slate-900 rounded-full h-2 mb-3 overflow-hidden">
+                      <div
+                        className="bg-brand-500 h-full rounded-full transition-all duration-1000 ease-linear"
+                        style={{ width: `${Math.min((elapsedTime / 90) * 100, 98)}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-xs text-slate-400 text-center animate-pulse">{getLoadingStatus(elapsedTime)}</p>
+                  </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -436,11 +441,11 @@ function App() {
         )}
 
         {currentMode === 'projects' && (
-           <ProjectLibrary 
-             projects={savedProjects} 
-             onLoadProject={(p) => { setGeneratedBook(p.book); setMessages(p.messages); setCurrentMode('preview'); }} 
-             onDeleteProject={(id) => setSavedProjects(prev => prev.filter(p => p.id !== id))}
-           />
+          <ProjectLibrary
+            projects={savedProjects}
+            onLoadProject={(p) => { setGeneratedBook(p.book); setMessages(p.messages); setCurrentMode('preview'); }}
+            onDeleteProject={(id) => setSavedProjects(prev => prev.filter(p => p.id !== id))}
+          />
         )}
       </div>
     </div>

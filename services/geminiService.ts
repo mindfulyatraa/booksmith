@@ -140,7 +140,7 @@ export class GeminiService {
       const response = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
-          parts: [{ text: `Minimalist vector art, symbolic illustration, or abstract data visualization of: ${prompt}. Clean lines, flat design, high contrast, trending on behance, corporate tech style. NO TEXT, NO WORDS, NO LABELS, NO NUMBERS. Visual metaphor only.` }]
+          parts: [{ text: `High-quality professionally designed illustration for the chapter titled "${prompt}". Style: Clean, Modern Vector Art or Infographic. Key Requirement: If text is included, it MUST be the exact title "${prompt}" written clearly, boldly, and correctly in the center. NO typo, NO blur, NO gibberish. If text cannot be perfect, use a textless symbolic metaphor. Colors: Vibrant and Professional.` }]
         }
       });
 
@@ -197,7 +197,7 @@ export class GeminiService {
     while (attempts < 3) {
       try {
         const result = await this.ai.models.generateContent({
-          model: "gemini-1.5-flash-001",
+          model: "gemini-2.5-flash",
           contents: prompt
         });
         return result.text || "";
@@ -220,7 +220,7 @@ export class GeminiService {
     this.currentLevel = level;
 
     this.chat = this.ai.chats.create({
-      model: "gemini-1.5-flash-001",
+      model: "gemini-2.5-flash",
       config: {
         systemInstruction: SYSTEM_INSTRUCTION_BASE,
         tools: [{ functionDeclarations: [createEBookTool, analyzeMarketTool, editChapterTool] }],
